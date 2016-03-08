@@ -40,6 +40,7 @@ void eliminarTablero(Pieza***);
 
 int main(int argc, char*argv[]){
 
+	
     int width, height;
 	initscr();
 	start_color();
@@ -75,14 +76,18 @@ int main(int argc, char*argv[]){
 	attron(COLOR_PAIR(1));
 	mvprintw(move_this_y_2,(width-strlen("3.-) Salir."))/2,"3.-) Salir.");
 	attroff(COLOR_PAIR(1));
+	
+
 
 	char ans = getch();
-
+	Pieza*** tablero = NULL;
 	while(ans == '1' || ans == '2'){
 		clear();
 		refresh();
-		Pieza*** tablero = NULL;
+		
 		if(ans == '1'){
+			tablero = crearTablero();
+			eliminarTablero(tablero);
 			tablero = crearTablero();
 		}
 		if(ans == '2'){
@@ -96,32 +101,57 @@ int main(int argc, char*argv[]){
 			
 			int numberCounter = 0;
 			char coordenadas[5];
-			while(numberCounter < 5){
-				noecho();
-				char temp;
-				temp = getch();
-				if(!temp%2){
-					if(temp >= '0' && temp <= '9' && numberCounter != 2){
-						echo();
-						addch(temp);
-						coordenadas[numberCounter] = temp;
-						numberCounter++;
-					}
-					if(numberCounter == 2  && temp == '-'){
-						echo();
-						addch(temp);
-						coordenadas[numberCounter] = temp;
-						numberCounter++;
-					}
-				}else{
-					if(temp >= 65 && temp <= 90){
-						echo();
-						addch(temp);
-						coordenadas[numberCounter] = temp;
-						numberCounter++;
+			int opcionCoordenadas;
+			do{
+				while(numberCounter < 5){
+					noecho();
+					char temp;
+					temp = getch();
+					if(temp != 27){
+						if(numberCounter%2){
+							if(temp >= '0' && temp <= '8'){
+								echo();
+								addch(temp);
+								coordenadas[numberCounter] = temp;
+								numberCounter++;
+							}
+						}else{
+							if((temp >= 65 && temp <= 73) || (temp >= 97 && temp <= 105)){
+								echo();
+								addch(temp);
+								coordenadas[numberCounter] = temp;
+								numberCounter++;
+							}
+						}
 					}
 				}
+				coordenadas[numberCounter] = '\0';
+				attron(COLOR_PAIR(4));
+				printw(" 1. Ingresar coordenada ");
+				attroff(COLOR_PAIR(4));
+				attron(COLOR_PAIR(3));
+				printw(" 2. Cambiar coordenada");
+				attroff(COLOR_PAIR(3));
+				attron(COLOR_PAIR(2));
+				printw(" 3. Guardar Partida");	
+				attroff(COLOR_PAIR(2));
+				opcionCoordenadas = getch();
+
 			}
+			while(opcionCoordenadas==2);
+			
+			/*
+			attron(COLOR_PAIR(4));
+			mvprintw(move_this_y_1-1,(width-strlen(" JUEGO DE AJEDREZ "))/2," JUEGO DE AJEDREZ ");
+			attroff(COLOR_PAIR(4));
+			attron(COLOR_PAIR(3));
+			mvprintw(move_this_y_1,(width-strlen("1.-) Nueva Partida"))/2,"1.-) Nueva Partida");
+			attroff(COLOR_PAIR(3));
+			attron(COLOR_PAIR(2));
+			mvprintw(height/2,(width-strlen("ESC.-) Abrir Partida"))/2,"2.-) Abrir Partida");	
+			attroff(COLOR_PAIR(2));
+			attron(COLOR_PAIR(1));
+			*/
 			if(turnoJugador%2){//Turno jugador 2
 
 
@@ -151,6 +181,7 @@ int main(int argc, char*argv[]){
 
 		char ans = getch();
 	}
+	
 	return 0;
 }
 
@@ -159,63 +190,38 @@ bool jaqueMate(Pieza*** tablero){
 	bool jaqueM = false;
 	return jaqueM;
 }
-/*
-void impresionTablero(Pieza*** matriz){
-	int x,y;
-	getmaxyx(stdscr,y,x);
-	move(y/2,(x/2)-20);	
-	int charAscii = 65;
-	init_pair(3,COLOR_BLACK,COLOR_WHITE);
-	init_pair(4,COLOR_RED,COLOR_BLACK);
-	for(int i=0; i<8; i++){
-		printw("%c",(char)(i+charAscii));
-		printw("\t\t");
-	}
-	printw ("\n\n");
-	charAscii = 65;
-	int bandera=3;
-	for(int i=0; i<8; i++){
-		printw("%i",i);
-		printw("\t");
-        for(int j=0; j<8; j++){
-            printw("|");
-            attron(COLOR_PAIR(bandera));
-            printw("       ");
-            printw("%s",matriz[i][j]->toString());
-            printw("       ");
-            attroff(COLOR_PAIR(bandera));
-            if(bandera%2)//Turno jugador 2
-            	bandera = 4;
-			else
-				bandera = 3;
-		}
-        if(i%2)
-        	bandera=3;
-        else
-        	bandera=4;
-        printw("|");
-    	impresionLinea();
-    }
-    return;
-}*/
+
 void impresionTablero(Pieza*** matriz){
 	attroff(A_BOLD);
 	int width, height;
-	init_pair(3,COLOR_BLACK,COLOR_WHITE);
-	init_pair(4,COLOR_RED,COLOR_BLACK);
+
+	init_pair(1, COLOR_CYAN,    COLOR_BLACK);
+    init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(3, COLOR_BLACK,	COLOR_WHITE);
+	init_pair(4, COLOR_RED,		COLOR_BLACK);
 
 	getmaxyx(curscr,height,width);
 	int move_this_y_1 = (height/2)-1;
 	int move_this_y_2 = (height/2)+1;
-	int charAscii = 65;
-	move(move_this_y_1-10,(width/2)-20);
+	move(move_this_y_1-8,(width/2)-20);
+
+	char letras[] = "ABCDEFGH";
+	/*attron(1);
+	printw ("\t\t");
+	printw ("FORMATO DE COORDENADAS: (Ej: B1B2) El primer conjunto de coordenadas es de la pieza que desea mover, el segundo es hacia que casilla");
+	printw ("\n");
+	attroff(1);
+	attron(2);
+	printw ("\t\t");
+	printw ("[Presionar ESC para guardar Partida]");
+	printw ("\n");
+	attroff(2);*/
+	printw ("\n\t\t");
 	for(int i=0; i<8; i++){
-		printw("%c",(char)(i+charAscii));
+		printw("%c",letras[i]);
 		printw("\t\t");
 	}
 	printw ("\n\n");
-	//impresionLinea();
-	charAscii = 65;
 	int bandera=3;
 	for(int i=0; i<8; i++){
 		printw("%i",i);
@@ -224,12 +230,12 @@ void impresionTablero(Pieza*** matriz){
             printw("|");
             attron(COLOR_PAIR(bandera));
             printw("       ");
-            printw("%s",matriz[i][j]->toString());
+            if(matriz[i][j]->toString() != "V ")
+            	addstr (matriz[i][j] -> toString().c_str());
+            else
+            	printw("  ");
             printw("       ");
             attroff(COLOR_PAIR(bandera));
-            //attron(COLOR_PAIR(bandera));
-            //attroff(COLOR_PAIR(bandera));
-       
             if(bandera%2)//Turno jugador 2
             	bandera = 4;
 			else
@@ -309,8 +315,8 @@ void crearPiezas(Pieza*** tablero){
 	tablero[7][4] = new Pieza("Q2",7,4);
 	for(int i=0 ; i<8 ; i++){
 		for(int j=0 ; j<8 ; j++){
-			if(tablero[i][j]== NULL)
-				tablero[i][j] = new Pieza("V",i,j);
+			if(tablero[i][j]=='\0')
+				tablero[i][j] = new Pieza("V ",i,j);
 		}
 	}
 	for(int i=0; i<8; i++)

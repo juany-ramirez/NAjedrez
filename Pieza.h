@@ -13,7 +13,7 @@ public://constructores con
 	Pieza(string);
 	Pieza(string, int, int);
         ~Pieza();
-        string toString();
+        string toString()const;
         bool validacionesTodas(int, int, Pieza);
         bool vPeon(int, int, Pieza);
         bool vCaballo(int, int, Pieza);

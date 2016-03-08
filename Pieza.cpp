@@ -21,7 +21,7 @@ Pieza::~Pieza(){
 
 }
 
-string Pieza::toString(){
+string Pieza::toString()const{
 	return tipo;
 }
 
