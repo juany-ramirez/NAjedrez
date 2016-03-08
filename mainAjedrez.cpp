@@ -15,6 +15,7 @@ using std::stringstream;
 void impresionTablero(Pieza***);
 bool jaqueMate(Pieza***);
 void impresionLinea();
+int coordenadaConsonante(char);
 
 /*
 	como se crea de manera dinamica un arreglo de objetos
@@ -107,22 +108,23 @@ int main(int argc, char*argv[]){
 					noecho();
 					char temp;
 					temp = getch();
-					if(temp != 27){
-						if(numberCounter%2){
-							if(temp >= '0' && temp <= '8'){
-								echo();
-								addch(temp);
-								coordenadas[numberCounter] = temp;
-								numberCounter++;
-							}
-						}else{
-							if((temp >= 65 && temp <= 73) || (temp >= 97 && temp <= 105)){
-								echo();
-								addch(temp);
-								coordenadas[numberCounter] = temp;
-								numberCounter++;
-							}
+					if(numberCounter%2){
+						if(temp >= '0' && temp <= '8'){
+							echo();
+							addch(temp);
+							coordenadas[numberCounter] = temp;
+							numberCounter++;
 						}
+					}else{
+						if((temp >= 65 && temp <= 73) || (temp >= 97 && temp <= 105)){
+							echo();
+							addch(temp);
+							coordenadas[numberCounter] = temp;
+							numberCounter++;
+						}
+					}
+					if(numberCounter==4){
+						numberCounter=5;
 					}
 				}
 				coordenadas[numberCounter] = '\0';
@@ -137,26 +139,21 @@ int main(int argc, char*argv[]){
 				attroff(COLOR_PAIR(2));
 				opcionCoordenadas = getch();
 
-			}
-			while(opcionCoordenadas==2);
-			
-			/*
-			attron(COLOR_PAIR(4));
-			mvprintw(move_this_y_1-1,(width-strlen(" JUEGO DE AJEDREZ "))/2," JUEGO DE AJEDREZ ");
-			attroff(COLOR_PAIR(4));
-			attron(COLOR_PAIR(3));
-			mvprintw(move_this_y_1,(width-strlen("1.-) Nueva Partida"))/2,"1.-) Nueva Partida");
-			attroff(COLOR_PAIR(3));
-			attron(COLOR_PAIR(2));
-			mvprintw(height/2,(width-strlen("ESC.-) Abrir Partida"))/2,"2.-) Abrir Partida");	
-			attroff(COLOR_PAIR(2));
-			attron(COLOR_PAIR(1));
-			*/
-			if(turnoJugador%2){//Turno jugador 2
+			}while(opcionCoordenadas==2);
+			int posibleMovF = coordenadaConsonante(coordenadas[2]), posibleMovC = coordenadas[3];
+			int posFila = coordenadaConsonante(coordenadas[0]), posCol = coordenadas[1];
 
+			clear();
+			refresh();
 
-			}else{//Turno jugador 1
-
+			stringstream ss;
+			ss << "posible movimiento columna-  " << posibleMovC
+			<<"  posicion en la fila "<< posFila <<"posible movimiento fila-  " << posibleMovC<<"  posicion en la fila "<< posFila ;
+			addstr((ss.str()).c_str());
+			if(turnoJugador%2){//Turno Jugador 2
+				
+			}else{//Turno Jugador 1
+				
 			}
 			turnoJugador++;
 		}
@@ -187,8 +184,19 @@ int main(int argc, char*argv[]){
 
 
 bool jaqueMate(Pieza*** tablero){
-	bool jaqueM = false;
-	return jaqueM;
+	int cont=0;
+	for (int i = 0; i < 8; ++i){
+		for (int j = 0; j < 8; ++j){
+			if((tablero[i][j]->toString() == "K1") || (tablero[i][j]->toString() == "K2")){
+				cont++;
+			}
+		}
+	}
+	if (cont==1)
+	{
+		return true;
+	}
+	return false;
 }
 
 void impresionTablero(Pieza*** matriz){
@@ -206,16 +214,6 @@ void impresionTablero(Pieza*** matriz){
 	move(move_this_y_1-8,(width/2)-20);
 
 	char letras[] = "ABCDEFGH";
-	/*attron(1);
-	printw ("\t\t");
-	printw ("FORMATO DE COORDENADAS: (Ej: B1B2) El primer conjunto de coordenadas es de la pieza que desea mover, el segundo es hacia que casilla");
-	printw ("\n");
-	attroff(1);
-	attron(2);
-	printw ("\t\t");
-	printw ("[Presionar ESC para guardar Partida]");
-	printw ("\n");
-	attroff(2);*/
 	printw ("\n\t\t");
 	for(int i=0; i<8; i++){
 		printw("%c",letras[i]);
@@ -324,4 +322,25 @@ void crearPiezas(Pieza*** tablero){
         	tablero[i][j] -> toString();
 	return;
 	}
+}
+
+int coordenadaConsonante(char coordenada){
+	int fila;
+	if(coordenada == 'a' || coordenada == 'A')
+		fila = 0;
+	if(coordenada == 'b' || coordenada == 'B')
+		fila = 1;
+	if(coordenada == 'c' || coordenada == 'C')
+		fila = 2;
+	if(coordenada == 'd' || coordenada == 'D')
+		fila = 3;
+	if(coordenada == 'e' || coordenada == 'E')
+		fila = 4;
+	if(coordenada == 'f' || coordenada == 'F')
+		fila = 5;
+	if(coordenada == 'g' || coordenada == 'G')
+		fila = 6;
+	if(coordenada == 'h' || coordenada == 'H')
+		fila = 7;
+	return fila;
 }
