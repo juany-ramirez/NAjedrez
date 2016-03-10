@@ -17,15 +17,12 @@ public://constructores con
         string toString()const;
         string getTipo();
         void setTipo(string);
-        bool saltarsePiezas(Pieza***, int, int);
+        bool saltarsePiezas(Pieza***, int, int,Pieza*);
         bool PiezaContraria(Pieza*);
         bool validacionesTodas(int, int, Pieza*);
         bool vPeon(int, int, Pieza*);
         bool primeraVPeon(int, int);
         bool vCaballo(int, int, Pieza*);
-        bool vTorre(int, int, Pieza*);
-        bool vReina(int, int, Pieza*);
         bool vRey(int, int, Pieza*);
-        bool vAlfil(int, int, Pieza*);
 };
 

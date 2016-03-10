@@ -143,11 +143,15 @@ int main(int argc, char*argv[]){
 			bool movimientoValido = false;
 
 			//							VALIDACIONES PARA MOVER PIEZAS
+			char tipoPieza = (tablero[posFila][posCol]->getTipo())[0];
 			if ((tablero[posFila][posCol]->getTipo()!="V ") && ((tablero[posFila][posCol]->getTipo())[1] == jugadorNum)) {
-				if(turnoJugador<3 && (tablero[posFila][posCol]->getTipo())[0]== 'P' && !primerPeonGuardado){
+				if(turnoJugador<3 && (tipoPieza== 'P' && !primerPeonGuardado)){
 					movimientoValido = tablero[posFila][posCol]->primeraVPeon(posibleMovF,posibleMovC);
 				}else{
-					movimientoValido = tablero[posFila][posCol]->validacionesTodas(posibleMovF,posibleMovC,tablero[posibleMovF][posibleMovC]);
+					if(tipoPieza == 'Q' || tipoPieza == 'T' || tipoPieza == 'A')
+						movimientoValido = tablero[posFila][posCol]->saltarsePiezas(tablero,posibleMovF,posibleMovC,tablero[posibleMovF][posibleMovC]);
+					else
+						movimientoValido = tablero[posFila][posCol]->validacionesTodas(posibleMovF,posibleMovC,tablero[posibleMovF][posibleMovC]);
 				}
 			}else{
 				printw("\n");
@@ -159,12 +163,17 @@ int main(int argc, char*argv[]){
 
 			if(movimientoValido){
 				printw("%s",(tablero[posFila][posCol]->getTipo()).c_str());
-				cambioPieza = tablero[posFila][posCol]->getTipo();
-				tablero[posibleMovF][posibleMovC]->setTipo(cambioPieza);
+				//cambioPieza = tablero[posFila][posCol]->toString();
+				tablero[posibleMovF][posibleMovC]->setTipo(tablero[posFila][posCol]->toString());
 				tablero[posFila][posCol]->setTipo("V ");
 			}else{
 				printw("validacion NO CUENTA");
 			}
+			printw("\n");
+			printw("%s",(tablero[posibleMovF][posibleMovC]->getTipo()).c_str());
+			printw("\n");
+			printw("\n");
+			printw("%s",(tablero[posFila][posCol]->getTipo()).c_str());
 			printw("\n");
 
 			if(turnoJugador%2){			//Turno Jugador 2
@@ -175,8 +184,8 @@ int main(int argc, char*argv[]){
 				jugadorNum= '2';
 			}
 			turnoJugador++;
-			if(!movimientoValido)
-				getch();
+			//if(!movimientoValido)
+			getch();
 		}
 
 		impresionMenu();

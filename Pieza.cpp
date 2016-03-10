@@ -50,12 +50,67 @@ bool Pieza::PiezaContraria(Pieza* p){
 	return condicion;
 }
 
-bool Pieza::saltarsePiezas(Pieza*** tablero, int posibleMovF, int posibleMovC){
-	bool condicion = false;
+bool Pieza::saltarsePiezas(Pieza*** tablero, int posibleMovF, int posibleMovC,Pieza* piezaN){
+	bool condicion = true;
 	int difC = posicionColumna - posibleMovC;
 	int difF = posicionFila - posibleMovF;
-	if(tipo[0] == 'A'){
 
+	int mayorColumna = posicionColumna;
+	int mayorFila = posicionFila;
+	
+	if(posicionColumna<posibleMovC)
+		mayorColumna = posibleMovC;
+	if(posicionFila<posibleMovF)
+		mayorFila = posibleMovF;
+
+	char tipoPieza = (tablero[posicionFila][posicionColumna]->getTipo())[0];
+	if( tipoPieza == 'Q'  || tipoPieza == 'T'){
+		if(((difF == 0) || (difC == 0))&&(piezaN->tipo=="V " || PiezaContraria(piezaN))){
+			if(difF==0)
+				for (int i = 0; i < difC; i++){
+					if(tablero[posicionColumna][mayorColumna]-> getTipo() != "V ")
+						condicion = false;
+					mayorColumna--;
+				}
+			if(difC==0)
+				for (int i = 0; i < difF; i++){
+					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")//revisaresto
+						condicion = false;
+					mayorFila--;
+				}
+		}
+	}
+	if(tipoPieza == 'Q' || tipoPieza == 'A' ){
+		if((abs(difF) == abs(difC)) && (piezaN->getTipo() == "V " || PiezaContraria(piezaN))){
+			if(posibleMovF > posicionFila && posibleMovC > posicionColumna){//ABAJO && DERECHA
+				for (int i = 0; i < difF; i++){
+					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+						condicion = false;
+					mayorColumna--;
+				}
+			}
+			if(posibleMovF < posicionFila && posibleMovC > posicionColumna){//ARRIBA && DERECHA
+				for (int i = 0; i < difF; i++){
+					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+						condicion = false;
+					mayorColumna--;
+				}
+			}
+			if(posibleMovF < posicionFila && posibleMovC < posicionColumna){//ARRIBA && IZQUIERDA
+				for (int i = 0; i < difF; i++){
+					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+						condicion = false;
+					mayorColumna--;
+				}
+			}
+			if(posibleMovF > posicionFila && posibleMovC < posicionColumna){//ABAJO && IZQUIERDA
+				for (int i = 0; i < difF; i++){
+					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+						condicion = false;
+					mayorColumna--;
+				}
+			}
+		}
 	}
 	return condicion;
 }
@@ -68,18 +123,10 @@ bool Pieza::validacionesTodas(int posibleMovF, int posibleMovC, Pieza* piezaN){
 	if(tipo[0]=='C'){
 		piezaMovimiento = vCaballo(posibleMovF,posibleMovC, piezaN);
 	}
-	if(tipo[0]=='T'){
-		piezaMovimiento = vTorre(posibleMovF,posibleMovC, piezaN);
-	}
-	if(tipo[0]=='Q'){
-		piezaMovimiento = vReina(posibleMovF,posibleMovC, piezaN);
-	}
 	if(tipo[0]=='K'){
 		piezaMovimiento = vRey(posibleMovF,posibleMovC, piezaN);
 	}
-	if(tipo[0]=='A'){
-		piezaMovimiento = vAlfil(posibleMovF,posibleMovC, piezaN);
-	}
+	
 	return piezaMovimiento;
 }
 
@@ -105,11 +152,8 @@ bool Pieza::primeraVPeon(int posibleMovF, int posibleMovC){
 	bool condicion = false;
 	int difC = posicionColumna - posibleMovC;
     int difF = posicionFila - posibleMovF;
-    printw("%i", difF);
-    printw("\n");
-    printw("%i", difC);
     if(difF == 0){//Movida VerticaL 
-    	if(abs(difC) == 2){ 	//Movida larga de peon
+    	if(abs(difC) == 2 || abs(difC) == 1 ){ 	//Movida larga de peon
 	        condicion = true;
 	    }
 	}
@@ -118,40 +162,18 @@ bool Pieza::primeraVPeon(int posibleMovF, int posibleMovC){
 
 bool Pieza::vCaballo(int posibleMovF, int posibleMovC, Pieza* piezaN){
 	bool condicion = false;
-	int movFila = 3;
-	int movColumna = 3;
-	return condicion;
-}
-
-bool Pieza::vTorre(int posibleMovF, int posibleMovC, Pieza* piezaN){
-	bool condicion = false;
 	int difC = posicionColumna - posibleMovC;
     int difF = posicionFila - posibleMovF;
-	if(((difF == 0) || (difC == 0))&&(piezaN->tipo=="V "))
-
-	return condicion;
-}
-
-bool Pieza::vReina(int posibleMovF, int posibleMovC, Pieza* piezaN){
-	bool condicion = false;
-	int movFila = 8;
-	int movColumna = 8;
+	if(((abs(difF) == 2) && (abs(difC) == 1)) || ((abs(difF) == 1) && (abs(difC) == 2)))
+		condicion = true;
 	return condicion;
 }
 
 bool Pieza::vRey(int posibleMovF, int posibleMovC, Pieza* piezaN){
 	bool condicion = false;
-	int movFila = 8;
-	int movColumna = 8;
-	return condicion;
-}
-
-bool Pieza::vAlfil(int posibleMovF, int posibleMovC, Pieza* piezaN){
-	// se puede mover si el numero de columna y fila es igual 
-	bool condicion = false;
 	int difC = posicionColumna - posibleMovC;
     int difF = posicionFila - posibleMovF;
-    if(abs(difF) == abs(difC) && piezaN->getTipo() == "V ")
+    if(((abs(difC) == 1) || (abs(difC) == 0))  && ((abs(difF) == 0) && (abs(difF) == 1)))
     	condicion = true;
 	return condicion;
 }
