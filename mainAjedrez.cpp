@@ -17,7 +17,7 @@ using std::strlen;
 using std::string;
 using std::stringstream;
 
-void impresionTablero(Pieza***);
+void impresionTablero(Pieza***,int);
 bool jaqueMate(Pieza***);
 void impresionLinea();
 int coordenadaConsonante(char);
@@ -26,8 +26,8 @@ Pieza*** crearTablero();
 void eliminarTablero(Pieza***);
 void guardarTablero(Pieza***);
 void abrirTablero(Pieza***);
-bool saltarsePiezas(Pieza***);
 void impresionMenu();
+bool validacionJaque(Pieza*** , int );
 
 
 int main(int argc, char*argv[]){
@@ -57,7 +57,7 @@ int main(int argc, char*argv[]){
 	Pieza*** tablero = NULL;
 	char jugadorNum= '1';
 	bool primerPeonGuardado = false;
-
+	int contadorJugadas=1;
 	while(ans == '1' || ans == '2'){
 		
 		clear();
@@ -77,8 +77,8 @@ int main(int argc, char*argv[]){
 		string cambioPieza;
 		while((!jaqueMate(tablero)) && (condicionGuardado)){
 
-			impresionTablero(tablero);
-			
+			impresionTablero(tablero, turnoJugador);
+
 			int numberCounter = 0;
 			char coordenadas[5];
 			int opcionCoordenadas;
@@ -90,7 +90,7 @@ int main(int argc, char*argv[]){
 					char temp;
 					temp = getch();
 					if(numberCounter%2){
-						if(temp >= '0' && temp <= '8'){
+						if(temp >= '0' && temp <= '7'){
 							echo();
 							addch(temp);
 							coordenadas[numberCounter] = temp;
@@ -120,10 +120,17 @@ int main(int argc, char*argv[]){
 				attron(COLOR_PAIR(2));
 				printw(" 3. Guardar Partida");	
 				attroff(COLOR_PAIR(2));
-
-				opcionCoordenadas = getch();
+				validMenu = false;
+				while (validMenu == false){
+					opcionCoordenadas = getch();
+					if(ans >= '0' && ans <= '3'){
+						echo();
+						addch(opcionCoordenadas);
+						validMenu = true;
+					}
+				}
 		
-				impresionTablero(tablero);
+				impresionTablero(tablero, turnoJugador);
 			}while(opcionCoordenadas=='2');
 
 			//							GUARDAR TABLERO
@@ -132,60 +139,63 @@ int main(int argc, char*argv[]){
 				condicionGuardado = false;
 			}
 
-			int posCol = coordenadaConsonante(coordenadas[0]), posFila = coordenadas[1]-'0';
-			int posibleMovC = coordenadaConsonante(coordenadas[2]), posibleMovF = coordenadas[3]-'0';
-			/*
-			printw("%s",tablero[posFila][posCol]->getTipo().c_str());
-			printw("\n");
-			printw("%c",(tablero[posFila][posCol]->getTipo())[1]);
-			printw("\n");
-*/
+			int posCol = coordenadas[1]-'0', posFila = coordenadaConsonante(coordenadas[0]);
+			int posibleMovC = coordenadas[3]-'0', posibleMovF =coordenadaConsonante(coordenadas[2]) ;
 			bool movimientoValido = false;
+			init_pair(6, COLOR_RED,     COLOR_BLACK);
 
 			//							VALIDACIONES PARA MOVER PIEZAS
-			char tipoPieza = (tablero[posFila][posCol]->getTipo())[0];
+			char tipoPieza = (tablero[posFila][posCol]->getTipo()) [0];
 			if ((tablero[posFila][posCol]->getTipo()!="V ") && ((tablero[posFila][posCol]->getTipo())[1] == jugadorNum)) {
-				if(turnoJugador<3 && (tipoPieza== 'P' && !primerPeonGuardado)){
+				if(contadorJugadas<3 && (tipoPieza== 'P' && !primerPeonGuardado)){
 					movimientoValido = tablero[posFila][posCol]->primeraVPeon(posibleMovF,posibleMovC);
 				}else{
-					if(tipoPieza == 'Q' || tipoPieza == 'T' || tipoPieza == 'A')
+					if(tipoPieza == 'Q' || tipoPieza == 'T' || tipoPieza == 'A'){
 						movimientoValido = tablero[posFila][posCol]->saltarsePiezas(tablero,posibleMovF,posibleMovC,tablero[posibleMovF][posibleMovC]);
-					else
+					}
+					else{
 						movimientoValido = tablero[posFila][posCol]->validacionesTodas(posibleMovF,posibleMovC,tablero[posibleMovF][posibleMovC]);
+					}
 				}
 			}else{
+				attron(COLOR_PAIR(6));
 				printw("\n");
-				printw("No se pueden mover las piezas del jugador opuesto ni posiciones vacias \n");
-				printw("[Presionar cualquier tecla para continuar] \n");
+				printw("\t\t\tNo se pueden mover las piezas del jugador opuesto ni posiciones vacias \n");
+				printw("\t\t\t[Presionar cualquier tecla para continuar] \n");
+				attroff(COLOR_PAIR(6));
 			}
-
+			/*
+			if(validacionJaque(tablero, jugadorNum)){
+				attron(COLOR_PAIR(6));
+				printw("\n\t\t\tPosibilidad de Jaque\n");
+				printw("\t\t\t[Presionar cualquier tecla para continuar] \n");
+				attroff(COLOR_PAIR(6));
+				getch();
+			}*/
 			//							INTERCAMBIO DE LAS PIEZAS
-
 			if(movimientoValido){
-				printw("%s",(tablero[posFila][posCol]->getTipo()).c_str());
-				//cambioPieza = tablero[posFila][posCol]->toString();
 				tablero[posibleMovF][posibleMovC]->setTipo(tablero[posFila][posCol]->toString());
 				tablero[posFila][posCol]->setTipo("V ");
+				contadorJugadas++;
 			}else{
-				printw("validacion NO CUENTA");
+				attron(COLOR_PAIR(6));
+				printw("\n\t\t\tEl movimiento no es Valido\n");
+				printw("\t\t\t[Presionar cualquier tecla para continuar] \n");
+				attroff(COLOR_PAIR(6));
 			}
-			printw("\n");
-			printw("%s",(tablero[posibleMovF][posibleMovC]->getTipo()).c_str());
-			printw("\n");
-			printw("\n");
-			printw("%s",(tablero[posFila][posCol]->getTipo()).c_str());
-			printw("\n");
 
-			if(turnoJugador%2){			//Turno Jugador 2
+			if(contadorJugadas%2){			//Turno Jugador 2
 				turnoJugador = 1;
 				jugadorNum= '1';
 			}else{						//Turno Jugador 1
 				turnoJugador = 2;
 				jugadorNum= '2';
 			}
-			turnoJugador++;
-			//if(!movimientoValido)
-			getch();
+
+			
+			
+			if(!movimientoValido)
+				getch();
 		}
 
 		impresionMenu();
@@ -199,7 +209,6 @@ int main(int argc, char*argv[]){
 				validMenu = true;
 			}
 		}
-
 	}
 
 	eliminarTablero(tablero);
@@ -224,20 +233,78 @@ bool jaqueMate(Pieza*** tablero){
 	return false;
 }
 
-void impresionTablero(Pieza*** matriz){
+bool validacionJaque(Pieza*** tablero, int jugadorNum) {
+	bool condicion= false;
+	bool movimientoValido= false;
+	int cont=0;
+	int posCol, posFila;
+	int col1, fil1,col2, fil2;
+	for (int i = 0; i < 8; ++i){
+		for (int j = 0; j < 8; ++j){
+			if((tablero[i][j]->toString() == "K1")){
+				col1 = i;
+				fil1 = j;
+			}
+			if( (tablero[i][j]->toString() == "K2")){
+				col2 = i;
+				fil2 = j;
+			}
+		}
+	}
+	char tipoPieza;
+	for (int i = 0; i < 8; i++){
+		for (int j = 0; j < 8; j++){
+			posFila = i;
+			posCol = j;
+			for (int k = 0; k < 8; k++){
+				for (int l = 0; l < 8; l++){
+					if ((tablero[posFila][posCol]->getTipo()!="V ") && ((tablero[posFila][posCol]->getTipo())[1] == jugadorNum)){
+						tipoPieza = (tablero[posFila][posCol]->getTipo()) [0];
+						if(tipoPieza == 'Q' || tipoPieza == 'T' || tipoPieza == 'A'){
+							movimientoValido = tablero[posFila][posCol]->saltarsePiezas(tablero,k,l,tablero[k][l]);
+						}
+						else{
+							movimientoValido = tablero[posFila][posCol]->validacionesTodas(k,l,tablero[k][l]);
+						}
+					}
+					if(movimientoValido && ((k==col1 && l==col2) || (k==col1 && l==col2))){
+						condicion= true;
+					}
+				}
+			}
+		}
+	}
+
+	return condicion;
+}
+
+
+void impresionTablero(Pieza*** matriz,int jugadorNum){
+	
+	refresh();
 	clear();
-	attroff(A_BOLD);
+	attron(A_BOLD);
 	int width, height;
 
 	init_pair(1, COLOR_CYAN,    COLOR_BLACK);
     init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
 	init_pair(3, COLOR_BLACK,	COLOR_WHITE);
 	init_pair(4, COLOR_RED,		COLOR_BLACK);
+    init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
 
 	getmaxyx(curscr,height,width);
 	int move_this_y_1 = (height/2)-1;
 	int move_this_y_2 = (height/2)+1;
-	move(move_this_y_1-8,(width/2)-20);
+	move(move_this_y_1-12,(width-strlen("JUGADOR #"))/2);
+	attron(COLOR_PAIR(1));
+	printw ("JUGADOR #");
+	printw ("%i",jugadorNum);
+	printw ("\n\t\t\t\t *** Ingresar datos con el siguiente formato: (B1C1) ");
+	printw ("\n\t\t\t\t La primera coordenada es de la pieza a mover, la segunda es de la casilla a la que desea moverse ");
+	attroff(COLOR_PAIR(1));
+	move(move_this_y_2-11,(width-120)/2);
+
+	attroff(A_BOLD);
 
 	char letras[] = "ABCDEFGH";
 	printw ("\n\t\t");
@@ -309,13 +376,12 @@ void impresionMenu(){
 
 void impresionLinea(){
 	printw ("\n\t");
-	for(int j=0; j<129; j++){
+	for(int j=0; j<131; j++){
 		printw("-");
 	}
 	printw ("\n");
 }
 
-///*********************PARTE DE CLASE PARTIDA
 void eliminarTablero(Pieza*** tablero){
 	for(int i=0;i<8;i++){
 		for(int j=0;j<8;j++){
@@ -399,7 +465,7 @@ int coordenadaConsonante(char coordenada){
 }
 
 
-void guardarTablero(Pieza*** tablero){
+void abrirTablero(Pieza*** tablero){
 	ofstream datos;
 	datos.open("Tablero.txt");
 	for (int i = 0; i < 8; i++){
@@ -412,7 +478,7 @@ void guardarTablero(Pieza*** tablero){
 	datos.close();
 }
 
-void abrirTablero(Pieza*** tablero){
+void guardarTablero(Pieza*** tablero){
 	int fila, columna;
 	string tipo;
 	ifstream datos("Tablero.txt");
@@ -428,8 +494,6 @@ void abrirTablero(Pieza*** tablero){
 	datos.close();
 }
 
-bool saltarsePiezas(Pieza*** tablero, Pieza p, int i, int j, int pI, int pJ){
 
-}
 
 

@@ -51,9 +51,9 @@ bool Pieza::PiezaContraria(Pieza* p){
 }
 
 bool Pieza::saltarsePiezas(Pieza*** tablero, int posibleMovF, int posibleMovC,Pieza* piezaN){
-	bool condicion = true;
-	int difC = posicionColumna - posibleMovC;
-	int difF = posicionFila - posibleMovF;
+	bool condicion = false;
+	int difC = posicionFila - posibleMovF;
+    int difF = posicionColumna - posibleMovC;
 
 	int mayorColumna = posicionColumna;
 	int mayorFila = posicionFila;
@@ -63,51 +63,63 @@ bool Pieza::saltarsePiezas(Pieza*** tablero, int posibleMovF, int posibleMovC,Pi
 	if(posicionFila<posibleMovF)
 		mayorFila = posibleMovF;
 
+
 	char tipoPieza = (tablero[posicionFila][posicionColumna]->getTipo())[0];
 	if( tipoPieza == 'Q'  || tipoPieza == 'T'){
 		if(((difF == 0) || (difC == 0))&&(piezaN->tipo=="V " || PiezaContraria(piezaN))){
-			if(difF==0)
+			condicion = true;
+			difC = abs(difC);
+			if(difF==0){
 				for (int i = 0; i < difC; i++){
-					if(tablero[posicionColumna][mayorColumna]-> getTipo() != "V ")
+					if(tablero[posicionFila][mayorColumna]-> getTipo() != "V ")
 						condicion = false;
 					mayorColumna--;
 				}
-			if(difC==0)
+			}
+			difF = abs(difF);
+			if(difC==0){
 				for (int i = 0; i < difF; i++){
-					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")//revisaresto
+					if(tablero[mayorFila][posicionColumna]-> getTipo() != "V ")//revisaresto
 						condicion = false;
 					mayorFila--;
 				}
+			}
 		}
 	}
 	if(tipoPieza == 'Q' || tipoPieza == 'A' ){
 		if((abs(difF) == abs(difC)) && (piezaN->getTipo() == "V " || PiezaContraria(piezaN))){
+			condicion = true;
+			difF = abs(difF);
 			if(posibleMovF > posicionFila && posibleMovC > posicionColumna){//ABAJO && DERECHA
 				for (int i = 0; i < difF; i++){
-					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+					if(tablero[posicionFila][posicionColumna]-> getTipo() != "V ")
 						condicion = false;
-					mayorColumna--;
+					posicionFila++;
+					posicionColumna++;
 				}
 			}
 			if(posibleMovF < posicionFila && posibleMovC > posicionColumna){//ARRIBA && DERECHA
 				for (int i = 0; i < difF; i++){
-					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+					if(tablero[posicionFila][posicionColumna]-> getTipo() != "V ")
 						condicion = false;
-					mayorColumna--;
+					posicionFila--;
+					posicionColumna++;
 				}
 			}
 			if(posibleMovF < posicionFila && posibleMovC < posicionColumna){//ARRIBA && IZQUIERDA
 				for (int i = 0; i < difF; i++){
-					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+					if(tablero[posicionFila][posicionColumna]-> getTipo() != "V ")
 						condicion = false;
-					mayorColumna--;
+					posicionFila--;
+					posicionColumna--;
 				}
 			}
 			if(posibleMovF > posicionFila && posibleMovC < posicionColumna){//ABAJO && IZQUIERDA
 				for (int i = 0; i < difF; i++){
-					if(tablero[mayorFila][posicionFila]-> getTipo() != "V ")
+					if(tablero[posicionFila][posicionColumna]-> getTipo() != "V ")
 						condicion = false;
-					mayorColumna--;
+					posicionFila++;
+					posicionColumna--;
 				}
 			}
 		}
@@ -132,8 +144,8 @@ bool Pieza::validacionesTodas(int posibleMovF, int posibleMovC, Pieza* piezaN){
 
 bool Pieza::vPeon(int posibleMovF, int posibleMovC, Pieza* piezaN){
 	bool condicion = false;
-	int difC = posicionColumna - posibleMovC;
-    int difF = posicionFila - posibleMovF;
+	int difC = posicionFila - posibleMovF;
+    int difF = posicionColumna - posibleMovC;
     if(difF == 0 && piezaN->tipo == "V ") {//Movida VerticaL      
         if(abs(difC) == 1){		//Si mueve un casillero
             condicion= true;
@@ -150,8 +162,8 @@ bool Pieza::vPeon(int posibleMovF, int posibleMovC, Pieza* piezaN){
 
 bool Pieza::primeraVPeon(int posibleMovF, int posibleMovC){
 	bool condicion = false;
-	int difC = posicionColumna - posibleMovC;
-    int difF = posicionFila - posibleMovF;
+	int difC = posicionFila - posibleMovF;
+    int difF = posicionColumna - posibleMovC;
     if(difF == 0){//Movida VerticaL 
     	if(abs(difC) == 2 || abs(difC) == 1 ){ 	//Movida larga de peon
 	        condicion = true;
@@ -171,9 +183,10 @@ bool Pieza::vCaballo(int posibleMovF, int posibleMovC, Pieza* piezaN){
 
 bool Pieza::vRey(int posibleMovF, int posibleMovC, Pieza* piezaN){
 	bool condicion = false;
-	int difC = posicionColumna - posibleMovC;
-    int difF = posicionFila - posibleMovF;
-    if(((abs(difC) == 1) || (abs(difC) == 0))  && ((abs(difF) == 0) && (abs(difF) == 1)))
+	int difC = posicionFila - posibleMovF;
+    int difF = posicionColumna - posibleMovC;
+
+    if(((abs(difC) == 1)  && (abs(difF) == 1)))
     	condicion = true;
 	return condicion;
 }
